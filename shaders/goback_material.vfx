@@ -83,6 +83,7 @@ PS
     #define CUSTOM_TEXTURE_FILTERING
     SamplerState TextureFiltering < Filter( POINT ); AddressU( WRAP ); AddressV( WRAP ); >;
     StaticCombo( S_MODE_DEPTH, 0..1, Sys( ALL ) );
+    BoolAttribute( SupportsMappingDimensions, true );
 
     #include "common/pixel.hlsl"
     
