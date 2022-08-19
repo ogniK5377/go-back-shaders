@@ -109,8 +109,24 @@ PS
 		// Shading model.
 		//
 		ShadingModelStandard sm;
-		
-		return FinalizePixelMaterial( i, m, sm );
+		PixelOutput o = FinalizePixelMaterial( i, m, sm );
+
+		#if ( S_MODE_TOOLS_VIS )
+		{
+            float3 vPositionWithOffsetWs = i.vPositionWithOffsetWs.xyz;
+		    float3 vPositionWs = i.vPositionWithOffsetWs.xyz + g_vHighPrecisionLightingOffsetWs.xyz;
+            float3 vNormalWs = normalize( i.vNormalWs.xyz );
+			
+            ToolsVisInitColor( o.vColor.rgba );
+
+			ToolsVisHandleFullbright( o.vColor.rgba, m.Albedo.rgb, vPositionWs.xyz, vNormalWs.xyz );
+
+			ToolsVisHandleAlbedo( o.vColor.rgba, m.Albedo.rgb );
+			ToolsVisHandleReflectivity( o.vColor.rgba, m.Albedo.rgb );
+		}
+		#endif
+
+		return o;
 
 	}
 }
