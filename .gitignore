@@ -1,0 +1,6 @@
+*.*_c
+code/obj
+code/Properties
+// Steam audio
+*.sa*
+*.vpk
