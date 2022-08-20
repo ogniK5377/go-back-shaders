@@ -4,9 +4,13 @@ Layer0
 {
 	shader "goback_postprocess.vfx"
 
+	//---- Rendering ----
+	F_TINT 1
+
 	//---- Bayer Matrix ----
 	TextureBayer "materials/post_process/8x8_dither.png"
 
 	//---- Go Back Settings ----
-	g_ColorDepth "6"
+	g_ColorDepth "0"
+	g_vTintColor "[1.000000 1.000000 1.000000 0.000000]"
 }
