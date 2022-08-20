@@ -7,14 +7,86 @@ using System.Threading.Tasks;
 
 namespace GoBack;
 
+public class GoBackPostProcess : BasePostProcess
+{
+	private int lastWidth = 320;
+	private int lastHeight = 240;
+
+	private int currentWidth = 320;
+	private int currentHeight = 240;
+
+	public int DesiredWidth
+	{
+		get => currentWidth;
+		set
+		{
+			currentWidth = value;
+			if ( currentWidth != lastWidth ) BuildTextureTargets();
+		}
+	}
+
+	public int DesiredHeight
+	{
+		get => currentHeight;
+		set
+		{
+			currentHeight = value;
+			if ( currentHeight != lastHeight ) BuildTextureTargets();
+		}
+	}
+
+	private Texture DownscaledScreen;
+	private Material GoBackPP;
+
+	public override PostProcessPass Passes => PostProcessPass.Sdr;
+
+	public GoBackPostProcess() : base()
+	{
+		Host.AssertClient();
+
+		GoBackPP = Material.Load( "materials/post_process/goback_postprocess.vmat" );
+
+		BuildTextureTargets();
+	}
+
+	private void BuildTextureTargets()
+	{
+		DownscaledScreen = Texture.CreateRenderTarget( "GoBack_Downscale", ImageFormat.RGBA8888, new Vector2( DesiredWidth, DesiredHeight ) );
+		lastWidth = currentWidth;
+		lastHeight = currentHeight;
+	}
+
+	public override void Render()
+	{
+		Sandbox.Render.Material = GoBackPP;
+
+		Attributes.Set( "InternalResolution", new Vector2( currentWidth, currentHeight ) );
+		Attributes.SetCombo( "D_PASS", 0 );
+		// Downscale to internal resolution
+		using ( ScopedRenderTarget() )
+		{
+			Sandbox.Render.SetViewport( 0, 0, DesiredWidth, DesiredHeight );
+			Sandbox.Render.SetRenderTarget( DownscaledScreen );
+			RenderScreenQuad( false );
+		}
+
+		// Upscale to native resolution & dither
+		Attributes.SetCombo( "D_PASS", 1 );
+		Attributes.Set( "DownscaleBuffer", DownscaledScreen );
+		RenderScreenQuad( true );
+	}
+}
+
 public partial class GoBackGame : Sandbox.Game
 {
-	private MaterialPostProcess PostProcessMaterial { get; set; }
+	private GoBackPostProcess PostProcessMaterial { get; set; }
 	public GoBackGame()
 	{
 		if ( IsClient )
 		{
-			PostProcessMaterial = new( "materials/post_process/goback_postprocess.vmat" );
+			PostProcessMaterial = new();
+			PostProcessMaterial.DesiredWidth = 640;
+			PostProcessMaterial.DesiredHeight = 480;
 			PostProcess.Add( PostProcessMaterial );
 		}
 	}

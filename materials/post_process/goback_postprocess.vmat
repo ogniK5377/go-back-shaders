@@ -5,10 +5,8 @@ Layer0
 	shader "goback_postprocess.vfx"
 
 	//---- Bayer Matrix ----
-	TextureBayer "materials/post_process/bayer_matrix.png"
+	TextureBayer "materials/post_process/8x8_dither.png"
 
 	//---- Go Back Settings ----
 	g_ColorDepth "6"
-	g_DitherScale "1"
-	g_vInternalResolution "[320 480]"
 }
